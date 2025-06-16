@@ -1,0 +1,28 @@
+.DS_Store
+**/node_modules/
+/dist_manage*
+temp_zh_files
+mes-micro-base
+dist
+
+# local env files
+.env.local
+.env.*.local
+#.env.*
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env.debugger
+# package-lock.json
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw*
+src/views/SysUser/sysUser/Untitled-1.code-workspace
