@@ -1,6 +1,8 @@
 import { AppDataSource } from "../data-source";
 import { User } from "../entities/User";
-import  bcrypt from "bcrypt";
+import bcrypt from "bcrypt";
+import { redisClient } from "../utils/redisClient";
+import { SmsService } from "./SmsService";
 
 export class UserService {
   private userRepo = AppDataSource.getRepository(User);
@@ -17,7 +19,12 @@ export class UserService {
     return await this.userRepo.findOneBy({ wechatOpenid: openid });
   }
 
-  async createUser(data: { phone: string; password: string; username: string; wechatOpenid?: string }): Promise<User> {
+  async createUser(data: {
+    phone: string;
+    password: string;
+    username: string;
+    wechatOpenid?: string;
+  }): Promise<User> {
     const { phone, password, username, wechatOpenid } = data;
 
     // 检查手机号是否存在
@@ -89,5 +96,23 @@ export class UserService {
     const updatedUser = await this.getUserById(id);
     if (!updatedUser) throw new Error("User not found");
     return updatedUser;
+  }
+
+  static async generateAndSendCode(phone: string): Promise<void> {
+    const existingCode = await redisClient.get(`code:${phone}`);
+    if (existingCode) {
+      throw new Error("验证码已发送，请稍后再试");
+    }
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    await redisClient.set(`code:${phone}`, code, { EX: 300 });
+    await SmsService.sendCode(phone, code);
+  }
+
+  static async verifyCode(phone: string, code: string): Promise<boolean> {
+    const storedCode = await redisClient.get(`code:${phone}`);
+    if (!storedCode) return false;
+    if (storedCode !== code) return false;
+    await redisClient.del(`code:${phone}`);
+    return true;
   }
 }

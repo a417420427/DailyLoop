@@ -13,7 +13,7 @@ import {
   Response,
 } from "tsoa";
 import { Note } from "../entities/Note";
-import { NoteService } from "../services/noteService";
+import { NoteService } from "../services/NoteService";
 
 interface NoteCreateRequest {
   title?: string;
@@ -28,7 +28,7 @@ interface NoteUpdateRequest {
 @Route("notes")
 @Tags("Note")
 export class NoteController extends Controller {
-  private noteService = new NoteService();
+  private NoteService = new NoteService();
 
   /**
    * 获取某用户所有笔记（非删除）
@@ -36,7 +36,7 @@ export class NoteController extends Controller {
    */
   @Get("user/{userId}")
   public async getNotes(@Path() userId: number): Promise<Note[]> {
-    return this.noteService.getNotesByUser(userId);
+    return this.NoteService.getNotesByUser(userId);
   }
 
   /**
@@ -46,7 +46,7 @@ export class NoteController extends Controller {
   @Get("{id}")
   @Response(404, "Note not found")
   public async getNote(@Path() id: number): Promise<Note> {
-    const note = await this.noteService.getNoteById(id);
+    const note = await this.NoteService.getNoteById(id);
     if (!note) {
       this.setStatus(404);
       throw new Error("Note not found");
@@ -66,7 +66,7 @@ export class NoteController extends Controller {
     @Body() request: NoteCreateRequest
   ): Promise<Note> {
     this.setStatus(201);
-    return this.noteService.createNote(userId, request.title, request.content);
+    return this.NoteService.createNote(userId, request.title, request.content);
   }
 
   /**
@@ -82,7 +82,7 @@ export class NoteController extends Controller {
     @Path() userId: number,
     @Body() request: NoteUpdateRequest
   ): Promise<Note> {
-    const note = await this.noteService.updateNote(id, userId, request.title, request.content);
+    const note = await this.NoteService.updateNote(id, userId, request.title, request.content);
     if (!note) {
       this.setStatus(404);
       throw new Error("Note not found or user unauthorized");
@@ -101,7 +101,7 @@ export class NoteController extends Controller {
     @Path() id: number,
     @Path() userId: number
   ): Promise<{ success: boolean }> {
-    const success = await this.noteService.deleteNote(id, userId);
+    const success = await this.NoteService.deleteNote(id, userId);
     if (!success) {
       this.setStatus(404);
       throw new Error("Note not found or user unauthorized");

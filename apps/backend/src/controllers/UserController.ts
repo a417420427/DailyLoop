@@ -7,22 +7,25 @@ import {
   Path,
   SuccessResponse,
   Controller,
+  Res,
 } from "tsoa";
-import { UserService } from "../services/userService";
+import { UserService } from "../services/UserService";
 import { User } from "../entities/User";
 
 @Route("users")
 @Tags("User")
 export class UserController extends Controller {
-  private userService = new UserService();
+  private UserService = new UserService();
 
   /**
    * 根据 ID 获取用户信息
    * @param userId 用户 ID
    */
   @Get("{userId}")
-  public async getUserById(@Path() userId: number): Promise<Omit<User, "passwordHash"> | null> {
-    const user = await this.userService.getUserById(userId);
+  public async getUserById(
+    @Path() userId: number
+  ): Promise<Omit<User, "passwordHash"> | null> {
+    const user = await this.UserService.getUserById(userId);
     if (!user) return null;
     // 返回时去除密码哈希
     const { passwordHash, ...rest } = user;
@@ -37,31 +40,20 @@ export class UserController extends Controller {
   @Post()
   public async createUser(
     @Body()
-    requestBody: { phone: string; password: string; username: string; wechatOpenid?: string }
+    requestBody: {
+      phone: string;
+      password: string;
+      username: string;
+      wechatOpenid?: string;
+    }
   ): Promise<Omit<User, "passwordHash">> {
-    const user = await this.userService.createUser(requestBody);
+    const user = await this.UserService.createUser(requestBody);
     this.setStatus(201);
     const { passwordHash, ...rest } = user;
     return rest;
   }
 
-  /**
-   * 用户登录（手机号+密码）
-   * @param phone 手机号
-   * @param password 密码
-   */
-  @Post("login")
-  public async loginUser(
-    @Body() body: { phone: string; password: string }
-  ): Promise<Omit<User, "passwordHash"> | null> {
-    const user = await this.userService.verifyUser(body.phone, body.password);
-    if (!user) {
-      this.setStatus(401);
-      return null;
-    }
-    const { passwordHash, ...rest } = user;
-    return rest;
-  }
+
 
   /**
    * 微信登录或绑定
@@ -71,7 +63,10 @@ export class UserController extends Controller {
   public async wechatLogin(
     @Body() body: { wechatOpenid: string; username: string }
   ): Promise<Omit<User, "passwordHash">> {
-    const user = await this.userService.loginOrBindWechat(body.wechatOpenid, body.username);
+    const user = await this.UserService.loginOrBindWechat(
+      body.wechatOpenid,
+      body.username
+    );
     const { passwordHash, ...rest } = user;
     return rest;
   }

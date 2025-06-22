@@ -3,6 +3,8 @@ import { useGlobalIconFont } from './components/OriginalIconFont/helper';
 export default defineAppConfig({
   pages: [
     'pages/index/index',
+    'pages/login/index',
+    'pages/register/index',
   ],
   window: {
     backgroundTextStyle: 'light',

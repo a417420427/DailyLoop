@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import { verifyJwt } from "../utils/jwt";
 
 export interface AuthRequest extends Request {
   user?: { id: number };
@@ -15,18 +15,20 @@ export const authMiddleware = (
     res.status(401).json({ message: "Authorization header missing" });
     return;
   }
+
   const token = authHeader.split(" ")[1];
   if (!token) {
     res.status(401).json({ message: "Token missing" });
     return;
   }
 
-  try {
-    const secret = process.env.JWT_SECRET || "your_jwt_secret";
-    const payload = jwt.verify(token, secret) as { userId: number };
-    req.user = { id: payload.userId };
-    next();
-  } catch (err) {
+  const payload = verifyJwt(token);
+
+  if (!payload) {
     res.status(401).json({ message: "Invalid or expired token" });
+    return;
   }
+
+  // req.user = { id: payload as string };
+  next();
 };
