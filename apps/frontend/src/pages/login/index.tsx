@@ -1,3 +1,4 @@
+import ApiService from "@/src/service";
 import { View, Input, Button } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { useState } from "react";
@@ -16,6 +17,18 @@ const LoginPage = () => {
       return;
     }
 
+      ApiService.post('/auth/login', {
+      baseUrl: 'http://localhost:3000',
+      data: {
+        username: phone,
+        code: password,
+        phone,
+      },
+    }).then(res => {
+      console.log(res)
+    })
+
+    return
     // 模拟登录逻辑
     Taro.showToast({ title: "登录成功", icon: "success" });
     // 你可以在这里调用接口

@@ -1,20 +1,12 @@
-import {
-  Controller,
-  Post,
-  Route,
-  Tags,
-  Body,
-  SuccessResponse,
-  Res,
-} from "tsoa";
+import { Controller, Post, Route, Tags, Body, SuccessResponse } from "tsoa";
 import { UserService } from "../services/UserService";
-import { signJwt } from "../utils/jwt"; // 你需要有JWT生成逻辑
-import { Response } from "express";
+import { signJwt } from "../utils/jwt";
 
 @Route("auth")
 @Tags("Auth")
 export class AuthController extends Controller {
-   private userService = new UserService();
+  private userService = new UserService();
+
   /**
    * 发送验证码
    */
@@ -25,7 +17,6 @@ export class AuthController extends Controller {
   ): Promise<{ message: string }> {
     const { phone } = body;
 
-    // 发送验证码（内部有防刷逻辑）
     await UserService.generateAndSendCode(phone);
     return { message: "验证码已发送，请注意查收" };
   }
@@ -36,35 +27,65 @@ export class AuthController extends Controller {
   @SuccessResponse("200", "登录成功")
   @Post("login")
   public async login(
-    @Body() body: { phone: string; code: string },
-    @Res() res: Response
-  ): Promise<{ token: string; userId: number; username: string }> {
+    @Body() body: { phone: string; code: string }
+  ): Promise<{ token: string; userId: string; username: string }> {
     const { phone, code } = body;
 
     const isValidCode = await UserService.verifyCode(phone, code);
     if (!isValidCode) {
-      res.status(400);
+      this.setStatus(400);
       return Promise.reject(new Error("验证码错误或已过期"));
     }
 
-    // 校验手机号是否已注册用户
     let user = await this.userService.getUserByPhone(phone);
     if (!user) {
-      // 如果用户不存在，可以直接创建（注册）
       user = await this.userService.createUser({
         phone,
-        password: Math.random().toString(36).slice(-8), // 随机密码，登录主要靠验证码
-        username: `user_${phone.slice(-4)}`, // 简单用户名生成示例
+        password: Math.random().toString(36).slice(-8),
+        username: `user_${phone.slice(-4)}`,
       });
     }
 
-    // 更新登录时间
-    user.lastLoginAt = new Date();
     await this.userService.updateUser(user.id, user);
 
-    // 生成 JWT token
     const token = signJwt({ userId: user.id, phone: user.phone }, "30m");
 
-    return { token, userId: user.id, username: user.username };
+    return { token, userId: user.id, username: user.username! };
+  }
+
+  /**
+   * 用户注册
+   */
+  @SuccessResponse("201", "注册成功")
+  @Post("register")
+  public async register(
+    @Body()
+    body: {
+      phone: string;
+      password: string;
+      username?: string;
+    }
+  ): Promise<{ token: string; userId: string; username: string }> {
+    const { phone, password, username } = body;
+
+    // 检查手机号是否已注册
+    const existingUser = await this.userService.getUserByPhone(phone);
+    if (existingUser) {
+      this.setStatus(400);
+      return Promise.reject(new Error("该手机号已注册"));
+    }
+
+    // 创建新用户
+    const user = await this.userService.createUser({
+      phone,
+      password,
+      username: username || `user_${phone.slice(-4)}`,
+    });
+
+    // 生成 token
+    const token = signJwt({ userId: user.id, phone: user.phone }, "30m");
+
+    this.setStatus(201);
+    return { token, userId: user.id, username: user.username! };
   }
 }

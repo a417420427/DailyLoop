@@ -35,7 +35,7 @@ export class NoteController extends Controller {
    * @param userId 用户ID
    */
   @Get("user/{userId}")
-  public async getNotes(@Path() userId: number): Promise<Note[]> {
+  public async getNotes(@Path() userId: string): Promise<Note[]> {
     return this.NoteService.getNotesByUser(userId);
   }
 
@@ -45,7 +45,7 @@ export class NoteController extends Controller {
    */
   @Get("{id}")
   @Response(404, "Note not found")
-  public async getNote(@Path() id: number): Promise<Note> {
+  public async getNote(@Path() id: string): Promise<Note> {
     const note = await this.NoteService.getNoteById(id);
     if (!note) {
       this.setStatus(404);
@@ -62,7 +62,7 @@ export class NoteController extends Controller {
   @Post("user/{userId}")
   @SuccessResponse("201", "Created")
   public async createNote(
-    @Path() userId: number,
+    @Path() userId: string,
     @Body() request: NoteCreateRequest
   ): Promise<Note> {
     this.setStatus(201);
@@ -78,8 +78,8 @@ export class NoteController extends Controller {
   @Put("{id}/user/{userId}")
   @Response(404, "Note not found or user unauthorized")
   public async updateNote(
-    @Path() id: number,
-    @Path() userId: number,
+    @Path() id: string,
+    @Path() userId: string,
     @Body() request: NoteUpdateRequest
   ): Promise<Note> {
     const note = await this.NoteService.updateNote(id, userId, request.title, request.content);
@@ -98,8 +98,8 @@ export class NoteController extends Controller {
   @Delete("{id}/user/{userId}")
   @Response(404, "Note not found or user unauthorized")
   public async deleteNote(
-    @Path() id: number,
-    @Path() userId: number
+    @Path() id: string,
+    @Path() userId: string
   ): Promise<{ success: boolean }> {
     const success = await this.NoteService.deleteNote(id, userId);
     if (!success) {

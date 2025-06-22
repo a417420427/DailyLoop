@@ -6,25 +6,29 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   JoinColumn,
+  OneToMany,
 } from "typeorm";
 import { User } from "./User";
+import { NoteTag } from "./NoteTags";
+import { ReviewTask } from "./ReviewTasks";
+import { KnowledgeNode } from "./KnowledgeNodes";
 
 @Entity({ name: "notes" })
 export class Note {
-  @PrimaryGeneratedColumn("increment")
-  id!: number;
+  @PrimaryGeneratedColumn({ type: "bigint" })
+  id!: string;
 
-  @Column()
-  user_id!: number;
+  @Column({ type: "bigint" })
+  user_id!: string;
 
-  @ManyToOne(() => User, (user) => user.id, { onDelete: "CASCADE" })
+  @ManyToOne(() => User, (user) => user.notes, { onDelete: "CASCADE" })
   @JoinColumn({ name: "user_id" })
   user!: User;
 
-  @Column({ length: 255, nullable: true })
+  @Column({ type: "varchar", length: 255, nullable: true })
   title?: string;
 
-  @Column("text", { nullable: true })
+  @Column({ type: "text", nullable: true })
   content?: string;
 
   @CreateDateColumn({ type: "datetime" })
@@ -33,6 +37,15 @@ export class Note {
   @UpdateDateColumn({ type: "datetime" })
   updated_at!: Date;
 
-  @Column({ default: false })
+  @Column({ type: "boolean", default: false })
   is_deleted!: boolean;
+
+  @OneToMany(() => NoteTag, (nt) => nt.note)
+  note_tags!: NoteTag[];
+
+  @OneToMany(() => ReviewTask, (rt) => rt.note)
+  review_tasks!: ReviewTask[];
+
+  @OneToMany(() => KnowledgeNode, (kn) => kn.note)
+  knowledge_nodes!: KnowledgeNode[];
 }

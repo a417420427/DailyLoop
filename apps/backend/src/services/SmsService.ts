@@ -25,11 +25,14 @@ export class SmsService {
       c: content,
     });
 
+
     const options: http.RequestOptions = {
       hostname: SMS_API_HOST,
       path: `/sms?${queryParams}`,
       method: "GET",
     };
+
+    console.log("开始发送短信:", options)
 
     return new Promise((resolve, reject) => {
       const req = http.request(options, (res) => {
@@ -38,6 +41,7 @@ export class SmsService {
 
         res.on("data", (chunk) => {
           responseData += chunk;
+          console.log(chunk, 'ss')
         });
 
         res.on("end", () => {
@@ -75,3 +79,5 @@ export class SmsService {
     console.log(msg);
   }
 }
+
+

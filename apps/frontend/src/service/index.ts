@@ -94,6 +94,7 @@ class ApiService {
       ...otherConfig,
     };
 
+    console.log(option, 'sssss')
     return Taro.request<D, CustomData>(option).then(res => {
       return res.data;
     });

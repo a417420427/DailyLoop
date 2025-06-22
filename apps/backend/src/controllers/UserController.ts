@@ -23,7 +23,7 @@ export class UserController extends Controller {
    */
   @Get("{userId}")
   public async getUserById(
-    @Path() userId: number
+    @Path() userId: string
   ): Promise<Omit<User, "passwordHash"> | null> {
     const user = await this.UserService.getUserById(userId);
     if (!user) return null;
@@ -59,15 +59,15 @@ export class UserController extends Controller {
    * 微信登录或绑定
    * @param body 包含wechatOpenid和username
    */
-  @Post("wechat-login")
-  public async wechatLogin(
-    @Body() body: { wechatOpenid: string; username: string }
-  ): Promise<Omit<User, "passwordHash">> {
-    const user = await this.UserService.loginOrBindWechat(
-      body.wechatOpenid,
-      body.username
-    );
-    const { passwordHash, ...rest } = user;
-    return rest;
-  }
+  // @Post("wechat-login")
+  // public async wechatLogin(
+  //   @Body() body: { wechatOpenid: string; username: string }
+  // ): Promise<Omit<User, "passwordHash">> {
+  //   const user = await this.UserService.loginOrBindWechat(
+  //     body.wechatOpenid,
+  //     body.username
+  //   );
+  //   const { passwordHash, ...rest } = user;
+  //   return rest;
+  // }
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button, Input, View } from '@tarojs/components';
 import Taro from '@tarojs/taro';
+import ApiService from '@/src/service';
 
 const RegisterPage = () => {
   const [phone, setPhone] = useState('');
@@ -22,9 +23,21 @@ const RegisterPage = () => {
       return;
     }
 
+    ApiService.post('/auth/register', {
+      baseUrl: 'http://localhost:3000',
+      data: {
+        username: phone,
+        password,
+        phone,
+      },
+    }).then(res => {
+      console.log(res)
+    })
+
+
     // 模拟注册 API 调用
-    Taro.showToast({ title: '注册成功', icon: 'success' });
-    Taro.redirectTo({ url: '/pages/login/index' });
+    // Taro.showToast({ title: '注册成功', icon: 'success' });
+    // Taro.redirectTo({ url: '/pages/login/index' });
   };
 
   const sendCode = () => {
@@ -61,8 +74,6 @@ const RegisterPage = () => {
           value={phone}
           onInput={e => setPhone(e.detail.value)}
         />
-
-   
 
         <Input
           className="mb-4 w-full rounded-lg border border-gray-300 p-3"

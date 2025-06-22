@@ -1,14 +1,16 @@
+import { AppDataSource } from "./data-source";
 import express from "express";
 import swaggerUi from "swagger-ui-express";
 import { RegisterRoutes } from "./routes/routes"; // tsoa 自动生成的路由注册函数
 import * as swaggerDocument from "../dist/swagger.json"; // 这里路径要确保正确
 import { authMiddleware } from "./middlewares/authMiddleware";
 import { errorHandler } from "./middlewares/errorHandler";
-import { AppDataSource } from "./data-source";
 
+import cors from 'cors'
 const app = express();
 
 app.use(express.json());
+app.use(cors());
 
 // 初始化数据库连接
 AppDataSource.initialize()
