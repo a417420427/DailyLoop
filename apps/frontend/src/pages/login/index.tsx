@@ -17,11 +17,11 @@ const LoginPage = () => {
       return;
     }
 
-      ApiService.post('/auth/login', {
+      ApiService.post('/auth/login-by-password', {
       baseUrl: 'http://localhost:3000',
       data: {
         username: phone,
-        code: password,
+        password: password,
         phone,
       },
     }).then(res => {

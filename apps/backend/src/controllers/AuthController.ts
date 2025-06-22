@@ -1,6 +1,7 @@
 import { Controller, Post, Route, Tags, Body, SuccessResponse } from "tsoa";
 import { UserService } from "../services/UserService";
 import { signJwt } from "../utils/jwt";
+import bcrypt from "bcrypt";
 
 @Route("auth")
 @Tags("Auth")
@@ -48,6 +49,39 @@ export class AuthController extends Controller {
 
     await this.userService.updateUser(user.id, user);
 
+    const token = signJwt({ userId: user.id, phone: user.phone }, "30m");
+
+    return { token, userId: user.id, username: user.username! };
+  }
+
+  @SuccessResponse("200", "登录成功")
+  @Post("login-by-password")
+  public async loginByPassword(
+    @Body() body: { phone: string; password: string }
+  ): Promise<{ token: string; userId: string; username: string }> {
+    const { phone, password } = body;
+
+    // 根据手机号查用户
+    const user = await this.userService.getUserByPhone(phone);
+    if (!user || !user.passwordHash) {
+      this.setStatus(400);
+      return Promise.reject(new Error("用户不存在或未设置密码"));
+    }
+
+    // 验证密码哈希
+    const isMatch = await bcrypt.compare(password, user.passwordHash);
+    if (!isMatch) {
+      this.setStatus(400);
+      return Promise.reject(new Error("密码错误"));
+    }
+
+    // 更新登录时间
+    await this.userService.updateUser(user.id, {
+      ...user,
+      last_login_at: new Date(),
+    });
+
+    // 生成JWT
     const token = signJwt({ userId: user.id, phone: user.phone }, "30m");
 
     return { token, userId: user.id, username: user.username! };
