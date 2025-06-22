@@ -1,20 +1,21 @@
-export default {
-  entryPagePath: 'pages/index/index',
+import { useGlobalIconFont } from './components/OriginalIconFont/helper';
+
+export default defineAppConfig({
   pages: [
-    'pages/common/message/index',
-    'pages/common/user/index',
-    'pages/common/user_detail/index',
-    'pages/common/login_qrcode/index',
-    'pages/common/login/index',
-    'pages/common/webview/index',
     'pages/index/index',
   ],
-  subpackages: [],
   window: {
-    navigationStyle: 'custom',
     backgroundTextStyle: 'light',
     navigationBarBackgroundColor: '#fff',
+    navigationBarTextStyle: 'black',
     navigationBarTitleText: 'WeChat',
-    navigationBarTextStyle: 'black'
-  }
-};
+  },
+  subPackages: [
+    {
+      root: 'packageA',
+      pages: ['pages/home/index'],
+    },
+  ],
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  usingComponents: Object.assign({},useGlobalIconFont()),
+});

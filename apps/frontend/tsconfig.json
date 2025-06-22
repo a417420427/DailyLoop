@@ -9,30 +9,22 @@
     "noImplicitAny": false,
     "allowSyntheticDefaultImports": true,
     "outDir": "lib",
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "strictNullChecks": true,
     "sourceMap": true,
     "baseUrl": ".",
-    "skipLibCheck": true,
     "rootDir": ".",
     "jsx": "react-jsx",
     "allowJs": true,
     "resolveJsonModule": true,
-    "typeRoots": [
-      "node_modules/@types",
-      "./types"
-    ],
+    "typeRoots": ["node_modules/@types"],
     "paths": {
-      "@/*": ["./src/*"],
-      "~@/*": ["./src/*"]
+      "@/mock": ["./mock/api"],
+      "@/src/*": ["./src/*"],
+      "@/ui/*": ["./src/components/ui/*"]
     }
   },
-  "include": ["./src", "./types"],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "_"
-  ],
+  "include": ["./src", "./types", "./config"],
   "compileOnSave": false
 }

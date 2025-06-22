@@ -1,3 +1,33 @@
-#app, :root, page, .__tabbar, tab-bar {
-  //--theme-color: yellow !important;
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+@import './styles/theme.less';
+
+/*  #ifdef  weapp */
+button {
+  margin-left: unset;
+  margin-right: unset;
+  width: unset;
+  padding-left: unset;
+  padding-right: unset;
 }
+button::after {
+  border: none;
+}
+/*  #endif  */
+
+/*  #ifdef  h5 */
+.taro_router .taro_page {
+  // background-color: var(--background) !important;
+  // color: var(--foreground);
+}
+.weui-tabbar {
+  background-color: #fff;
+}
+taro-button-core::after {
+  border: none !important;
+}
+taro-button-core + taro-button-core {
+  margin-top: 0 !important;
+}
+/*  #endif  */

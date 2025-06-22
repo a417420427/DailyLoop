@@ -1,26 +1,44 @@
-import Taro, {useDidShow} from '@tarojs/taro';
-import {PageKit} from "@/_utils";
-import {defaultRequestOptions, EnvPropsKit, PromiseKit, TaroKit} from "@hocgin/taro-kit";
-import Config from "@/config";
-import './app.less'
+import { PropsWithChildren, useEffect, useState } from 'react';
+import Taro, { useDidHide, useDidShow } from '@tarojs/taro';
+import { focusManager, onlineManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-defaultRequestOptions({
-  baseUrl: Config.getBaseUrl(),
-  nologin: () => PageKit.toLogin(),
-  addHeaders: async () => ({
-    "X-Source": `${EnvPropsKit.getAppid()}`,
-  }),
-  errorHandler: error => TaroKit.error(`${error?.message ?? `系统繁忙`}`),
-});
+import './app.less';
 
-export default ({children}) => {
+if (process.env.TARO_ENV === 'weapp') {
+  import('abortcontroller-polyfill/dist/abortcontroller-polyfill-only');
+}
+
+function App({ children }: PropsWithChildren<{}>) {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: 2,
+          },
+        },
+      })
+  );
+  useEffect(() => {
+    //从无网络状态变为有网络时react-query自动重新发起请求
+    function onlineChange(res) {
+      if (onlineManager.isOnline() === res.isConnected) return;
+      onlineManager.setOnline(res.isConnected);
+    }
+    Taro.onNetworkStatusChange(onlineChange);
+    return () => {
+      Taro.offNetworkStatusChange(onlineChange);
+    };
+  }, []);
+
   useDidShow(() => {
-    Taro.getSetting({}).then(res => {
-      // 已经授权，可以直接调用 获取头像昵称，不会弹框
-      if (res.authSetting['scope.userInfo']) {
-        PromiseKit.Global.login(false, {success: PromiseKit.Global.userInfoReadyCallback});
-      }
-    })
+    focusManager.setFocused(true);
   });
-  return (<>{children}</>)
-};
+  useDidHide(() => {
+    focusManager.setFocused(false);
+  });
+
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+}
+
+export default App;

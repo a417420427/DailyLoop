@@ -1,43 +1,16 @@
 {
-  "miniprogramRoot": "dist/",
-  "projectname": "taro-starter",
-  "description": "taro-starter",
-  "appid": "",
+  "miniprogramRoot": "./dist",
+  "projectname": "taro-simple-template",
+  "description": "简单的taro模板",
+  "appid": "wx8efec9576c10f892",
   "setting": {
     "urlCheck": false,
-    "es6": false,
-    "enhance": true,
-    "postcss": false,
-    "preloadBackgroundData": false,
-    "minified": false,
-    "newFeature": false,
-    "coverView": true,
-    "nodeModules": false,
     "autoAudits": false,
-    "showShadowRootInWxmlPanel": true,
-    "scopeDataCheck": false,
-    "uglifyFileName": false,
-    "checkInvalidKey": true,
-    "checkSiteMap": true,
-    "uploadWithSourceMap": true,
+    "es6": true,
+    "postcss": false,
+    "minified": false,
     "compileHotReLoad": false,
-    "useMultiFrameRuntime": false,
-    "useApiHook": true,
-    "babelSetting": {
-      "ignore": [],
-      "disablePlugins": [],
-      "outputPath": ""
-    },
-    "bundle": true,
-    "useIsolateContext": true,
-    "useCompilerModule": true,
-    "userConfirmedUseCompilerModuleSwitch": false,
-    "packNpmManually": false,
-    "packNpmRelationList": [],
-    "minifyWXSS": true
+    "bigPackageSizeSupport": true
   },
-  "compileType": "miniprogram",
-  "simulatorType": "wechat",
-  "simulatorPluginLibVersion": {},
-  "condition": {}
+  "compileType": "miniprogram"
 }
