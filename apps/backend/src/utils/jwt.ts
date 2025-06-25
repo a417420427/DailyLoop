@@ -1,9 +1,10 @@
 import jwt from "jsonwebtoken";
-import ms from "ms";
+import ms, { StringValue } from "ms";
 
 const SECRET: string = process.env.JWT_SECRET || "default_secret_key";
 
-export function signJwt(payload: object, expiresIn: "30m"): string {
+
+export function signJwt(payload: object, expiresIn: StringValue): string {
   return jwt.sign(payload, SECRET, { expiresIn: ms(expiresIn) });
 }
 

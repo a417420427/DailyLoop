@@ -49,7 +49,7 @@ export class AuthController extends Controller {
 
     await this.userService.updateUser(user.id, user);
 
-    const token = signJwt({ userId: user.id, phone: user.phone }, "30m");
+    const token = signJwt({ userId: user.id, phone: user.phone }, "30d");
 
     return { token, userId: user.id, username: user.username! };
   }
@@ -72,7 +72,7 @@ export class AuthController extends Controller {
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
       this.setStatus(400);
-      return Promise.reject(new Error("密码错误"));
+      return Promise.reject(new Error("用户名或密码错误"));
     }
 
     // 更新登录时间

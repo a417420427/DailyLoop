@@ -1,5 +1,6 @@
 import { View } from '@tarojs/components';
 import Container from '@/src/components/Container';
+
 import CardList from './CardList';
 import SearchHeader from './SearchHeader';
 import BottomTabBar from '@/src/components/BottomTabBar';
@@ -25,6 +26,7 @@ const Index = () => {
   ];
 
 
+
   // 在页面或组件里
 
   return (
@@ -35,7 +37,7 @@ const Index = () => {
           <CardList data={sampleData} />
         </View>
 
-        <BottomTabBar />
+        <BottomTabBar  />
       </View>
     </Container>
   );

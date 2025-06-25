@@ -51,8 +51,9 @@ export type CustomData = { [key: string]: any };
 //后台返回的数据格式
 export interface CustomResult<D = unknown> {
   data: D;
-  code: number;
+  statusCode: number;
   message: string;
+  [key: string]: any
 }
 
 type OmitMethodCustomOption = Omit<Taro.request.Option<CustomResult, CustomData>, 'method'> & {
@@ -66,7 +67,7 @@ class ApiService {
   static baseOptions<D>(
     { url, data, header, baseUrl, extraConfig, ...otherConfig }: OmitMethodCustomOption,
     method: keyof Taro.request.Method
-  ) {
+  ): Promise<D> {
     extraConfig = {
       showLoading: true,
       isHasToken: true,
@@ -94,17 +95,20 @@ class ApiService {
       ...otherConfig,
     };
 
-    console.log(option, 'sssss')
-    return Taro.request<D, CustomData>(option).then(res => {
-      return res.data;
+    return Taro.request<CustomData>(option).then(res => {
+     
+      return res as any;
     });
   }
+
   private static getMethod = (method: keyof Taro.request.Method) => {
-    const apiMethod = <D>(url, option?: CustomOption): Promise<D> => {
+    const apiMethod = <D>(url: string, option?: CustomOption): Promise<D> => {
+      // 这里跟 baseOptions 保持一致
       return this.baseOptions<D>({ url, ...option }, method);
     };
     return apiMethod;
   };
+
   static get = this.getMethod('GET');
   static post = this.getMethod('POST');
   static put = this.getMethod('PUT');

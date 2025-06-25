@@ -5,6 +5,8 @@ export default defineAppConfig({
     'pages/index/index',
     'pages/login/index',
     'pages/register/index',
+    'pages/history/index',
+    'pages/notes/index',
   ],
   window: {
     backgroundTextStyle: 'light',
@@ -12,12 +14,6 @@ export default defineAppConfig({
     navigationBarTextStyle: 'black',
     navigationBarTitleText: 'WeChat',
   },
-  subPackages: [
-    {
-      root: 'packageA',
-      pages: ['pages/home/index'],
-    },
-  ],
   // eslint-disable-next-line react-hooks/rules-of-hooks
   usingComponents: Object.assign({},useGlobalIconFont()),
 });

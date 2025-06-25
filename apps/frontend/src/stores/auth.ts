@@ -8,6 +8,8 @@ import { getExpTaroStorage } from '@/src/utils/TaroStorage';
 export type AuthStoreKV = Utils.StoreKV<Omit<IAuthStore, 'setAuthStore'>>;
 export interface IAuthStore {
   token: string;
+  userId?: string
+  username?: string
   setAuthStore: (key: AuthStoreKV['k'], value: AuthStoreKV['v']) => void;
 }
 

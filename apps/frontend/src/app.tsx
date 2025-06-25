@@ -2,6 +2,7 @@ import { PropsWithChildren, useEffect, useState } from 'react';
 import Taro, { useDidHide, useDidShow } from '@tarojs/taro';
 import { focusManager, onlineManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
+
 import './app.less';
 
 if (process.env.TARO_ENV === 'weapp') {

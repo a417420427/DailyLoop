@@ -23,7 +23,7 @@ export const authMiddleware = (
   }
 
   const payload = verifyJwt(token);
-
+  console.log(payload, 'payload')
   if (!payload) {
     res.status(401).json({ message: "Invalid or expired token" });
     return;
