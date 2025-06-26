@@ -1,38 +1,55 @@
 import React, { useEffect, useState } from 'react';
-import { View, Input, Button, Text } from '@tarojs/components';
+import { Button, Input, Text, View } from '@tarojs/components';
 import Taro from '@tarojs/taro';
-import BottomTabBar from '@/src/components/BottomTabBar';
 import ApiService from '@/src/service';
-import { authStore } from '@/src/stores/auth';
+import BottomTabBar from '@/src/components/BottomTabBar';
+
 import { useAuthGuard } from '@/src/hooks';
+
+const LENGTH_OPTIONS = [
+  { label: '简短', value: 'short' },
+  { label: '中等', value: 'medium' },
+  { label: '较长', value: 'long' },
+];
+
+const STYLE_OPTIONS = [
+  { label: '正式', value: 'formal' },
+  { label: '幽默', value: 'humorous' },
+  { label: '亲切', value: 'friendly' },
+  { label: '小红书', value: '小红书' },
+];
 
 const HomePage: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
+  const [length, setLength] = useState('medium');
+  const [style, setStyle] = useState('formal');
   const [result, setResult] = useState('');
 
-  const handleInput = (e) => {
+  const handleInput = e => {
     setInputValue(e.detail.value);
   };
 
-  useAuthGuard()
+  useAuthGuard();
 
-  useEffect(() => {
-     ApiService.post('/ai/deepseek', {
-      baseUrl: 'http://localhost:3000',
-      data: {
-        prompt: '你好'
-      }
-    }).then(res => {
-      console.log(res)
-    })
-  }, [])
   const handleGenerate = () => {
     if (!inputValue.trim()) {
       Taro.showToast({ title: '请输入关键词', icon: 'none' });
       return;
     }
-    const mockResult = `基于「${inputValue}」生成的AI文案示例：让创作更高效！`;
-    setResult(mockResult);
+    ApiService.post<{
+      statusCode: number,
+      data: { result: string }
+    }>('/ai/deepseek', {
+      baseUrl: 'http://localhost:3000',
+      data: {
+        keywords: [inputValue],
+        style,
+        length,
+      },
+    }).then(res => {
+      console.log(res)
+      setResult(res.data.result);
+    });
   };
 
   const handleCopy = () => {
@@ -43,48 +60,71 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <View className="p-4 bg-gray-50 min-h-screen">
-      <View className="text-center mb-6">
+    <View className="min-h-screen bg-gray-50 p-4">
+      <View className="mb-6 text-center">
         <Text className="text-3xl font-bold text-blue-600">AI 文案助手</Text>
-        <Text className="block text-sm text-gray-500 mt-1">让创作更简单高效</Text>
+        <Text className="mt-1 block text-sm text-gray-500">让创作更简单高效</Text>
       </View>
 
-      <View className="bg-white rounded-xl shadow p-4 mb-4">
+      <View className="mb-4 rounded-xl bg-white p-4 shadow">
         <Input
-          className="border border-gray-300 rounded p-3 w-full mb-3"
+          className="mb-3 w-full rounded border border-gray-300 p-3"
           type="text"
           placeholder="请输入关键词或提示语"
           value={inputValue}
           onInput={handleInput}
         />
 
-        <Button
-          className="bg-blue-500 text-white rounded-lg p-3 w-full text-base"
-          onClick={handleGenerate}
-        >
+        {/* 风格选择 */}
+        <View className="mb-4">
+          <Text className="mb-2 block font-semibold text-gray-700">选择风格</Text>
+          <View className="flex flex-wrap gap-3">
+            {STYLE_OPTIONS.map(({ label, value }) => (
+              <View
+                key={value}
+                className={`cursor-pointer select-none rounded-full px-4 py-2
+                  ${style === value ? 'bg-blue-500 text-white' : 'border border-gray-300 text-gray-700'}`}
+                onClick={() => setStyle(value)}
+              >
+                {label}
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* 长度选择 */}
+        <View className="mb-4">
+          <Text className="mb-2 block font-semibold text-gray-700">选择文本长度</Text>
+          <View className="flex flex-wrap gap-3">
+            {LENGTH_OPTIONS.map(({ label, value }) => (
+              <View
+                key={value}
+                className={`cursor-pointer select-none rounded-full px-4 py-2
+                  ${length === value ? 'bg-blue-500 text-white' : 'border border-gray-300 text-gray-700'}`}
+                onClick={() => setLength(value)}
+              >
+                {label}
+              </View>
+            ))}
+          </View>
+        </View>
+
+        <Button className="w-full rounded-lg bg-blue-500 p-3 text-base text-white" onClick={handleGenerate}>
           立即生成文案
         </Button>
       </View>
 
       {result && (
-        <View className="bg-white rounded-xl shadow p-4 mb-4">
-          <Text className="text-sm text-gray-600 block mb-2">生成结果：</Text>
-          <Text className="text-base block mb-3 leading-relaxed">{result}</Text>
-          <Button
-            className="border border-blue-500 text-blue-500 rounded p-2 text-sm"
-            plain
-            onClick={handleCopy}
-          >
+        <View className="mb-4 rounded-xl bg-white p-4 shadow">
+          <Text className="mb-2 block text-sm text-gray-600">生成结果：</Text>
+          <Text className="mb-3 block text-base leading-relaxed">{result}</Text>
+          <Button className="rounded border border-blue-500 p-2 text-sm text-blue-500" plain onClick={handleCopy}>
             复制文案
           </Button>
         </View>
       )}
 
-      <Button
-        className="text-sm text-gray-500 underline mb-16"
-        plain
-        onClick={() => Taro.navigateTo({ url: '/pages/history/index' })}
-      >
+      <Button className="mb-16 text-sm text-gray-500 underline" plain onClick={() => Taro.navigateTo({ url: '/pages/history/index' })}>
         查看历史记录
       </Button>
 
