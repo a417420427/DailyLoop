@@ -89,16 +89,15 @@ class ApiService {
       header: {
         'content-type': contentType,
         //TODO添加自己的token
-        Authorization: extraConfig.isHasToken ? authStore.getState().token : '',
+        Authorization: extraConfig.isHasToken ? 'Bearer ' + authStore.getState().token : '',
         ...header,
       },
       ...otherConfig,
     };
 
     return Taro.request<CustomData>(option).then(res => {
-     
       return res as any;
-    });
+    })
   }
 
   private static getMethod = (method: keyof Taro.request.Method) => {

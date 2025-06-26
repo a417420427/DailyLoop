@@ -1,16 +1,20 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyJwt } from "../utils/jwt";
+import { AppDataSource } from "../data-source";
+import { User } from "../entities/User";
+import { redisClient } from "../utils/redisClient";
 
 export interface AuthRequest extends Request {
-  user?: { id: number };
+  user?: User;
 }
 
-export const authMiddleware = (
+export const authMiddleware = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction
-): void => {
+): Promise<void> => {
   const authHeader = req.headers.authorization;
+
   if (!authHeader) {
     res.status(401).json({ message: "Authorization header missing" });
     return;
@@ -23,12 +27,41 @@ export const authMiddleware = (
   }
 
   const payload = verifyJwt(token);
-  console.log(payload, 'payload')
-  if (!payload) {
+  if (!payload || typeof payload !== "object" || !("userId" in payload)) {
     res.status(401).json({ message: "Invalid or expired token" });
     return;
   }
 
-  // req.user = { id: payload as string };
-  next();
+  const userId = payload.id;
+
+  try {
+    // Redis get 返回的是 string | null
+    const cachedUserStr = await redisClient.get(`user:${userId}`);
+
+    if (cachedUserStr) {
+      // 反序列化
+      req.user = JSON.parse(cachedUserStr);
+      return next();
+    }
+
+    // 缓存没有，查数据库
+    const userRepo = AppDataSource.getRepository(User);
+    const user = await userRepo.findOneBy({ id: userId });
+
+    if (!user) {
+      res.status(401).json({ message: "User not found" });
+      return;
+    }
+
+    // 写入缓存，EX 单位秒，这里 300秒 = 5分钟
+    await redisClient.set(`user:${userId}`, JSON.stringify(user), {
+      EX: 300,
+    });
+
+    req.user = user;
+    next();
+  } catch (error) {
+    console.error("Auth middleware error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };

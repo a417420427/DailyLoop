@@ -30,7 +30,6 @@ const HomePage: React.FC = () => {
   };
 
   useAuthGuard();
-
   const handleGenerate = () => {
     if (!inputValue.trim()) {
       Taro.showToast({ title: '请输入关键词', icon: 'none' });
@@ -42,7 +41,7 @@ const HomePage: React.FC = () => {
     }>('/ai/deepseek', {
       baseUrl: 'http://localhost:3000',
       data: {
-        keywords: [inputValue],
+        keywords: inputValue.split(/[ ,]+/),
         style,
         length,
       },
