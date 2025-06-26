@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, Button, ScrollView } from "@tarojs/components";
 import { useLoad } from "@tarojs/taro";
 import ApiService from "@/src/service";
+import BottomTabBar from '@/src/components/BottomTabBar';
 
 interface HistoryRecord {
   id: string;
@@ -104,6 +105,9 @@ const HistoryPage: React.FC = () => {
           </View>
         </View>
       )}
+
+
+      <BottomTabBar />
     </View>
   );
 };

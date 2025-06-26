@@ -5,6 +5,7 @@ export default defineAppConfig({
     'pages/index/index',
     'pages/login/index',
     'pages/register/index',
+    'pages/titleGenerator/index',
     'pages/history/index',
     'pages/notes/index',
   ],
@@ -15,5 +16,5 @@ export default defineAppConfig({
     navigationBarTitleText: 'WeChat',
   },
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  usingComponents: Object.assign({},useGlobalIconFont()),
+  usingComponents: Object.assign({}, useGlobalIconFont()),
 });
