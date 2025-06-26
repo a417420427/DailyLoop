@@ -51,30 +51,31 @@ export class DeepSeekService {
     return data.choices[0].message.content.trim();
   }
 
-  static async generateProductTitles(options: {
-    productName: string;
-    productPoints: string;
-    targetAudience?: string;
-    platform: "淘宝" | "拼多多" | "京东";
-    tone: "官方" | "亲切" | "潮流";
-  }): Promise<string> {
-    const { productName, productPoints, targetAudience, platform, tone } =
-      options;
+public static async generateProductTitles(
+    productName: string,
+    productPoints: string,
+    targetAudience: string | undefined,
+    platform: string,
+    tone: string
+  ): Promise<string[]> {
+    // 构建prompt，结合参数生成文案提示词
+    let prompt = `请为以下商品生成3-5个爆款标题，每个标题20-30字，符合${platform}平台风格，语气为${tone}：\n`;
+    prompt += `商品名称：${productName}\n`;
+    prompt += `主要卖点：${productPoints}\n`;
+    if (targetAudience) {
+      prompt += `目标人群：${targetAudience}\n`;
+    }
+    prompt += `标题需包含平台热词，如“爆款”、“正品保障”、“次日达”等。`;
 
-    const hotWords = PLATFORM_HOT_WORDS[platform].join("、");
-    const audiencePart = targetAudience ? `目标人群是 ${targetAudience}。` : "";
+    const response = await DeepSeekService.generateText(prompt);
 
-    const prompt = `
-请基于以下信息生成 3 到 5 个 20-30 字的电商商品标题，标题应适合${platform}平台风格，包含其常用热词（例如：${hotWords}），符合${tone}语气，突出卖点，吸引用户点击。
+    // 假设返回的是多行标题，用换行拆分
+    const titles = response
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0);
 
-商品名称：${productName}
-主要卖点：${productPoints}
-${audiencePart}
-
-每个标题单独换行输出。不要额外说明或解释。
-    `.trim();
-
-    return await this.generateText(prompt);
+    return titles;
   }
 
   static async extractKeyPoints(description: string): Promise<string> {

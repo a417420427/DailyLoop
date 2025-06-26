@@ -81,37 +81,30 @@ export class AIController extends Controller {
 
   @SuccessResponse("200", "生成成功")
   @Post("generate-product-titles")
-  public async generateProductTitles(
+ public async generateProductTitles(
     @Body() body: GenerateProductTitlesRequest,
-    @Request() req: AuthenticatedRequest
-  ): Promise<{ result: string }> {
+    @Request() req: any
+  ): Promise<{ result: string[] }> {
     const { productName, productPoints, targetAudience, platform, tone } = body;
 
     try {
-      const result = await DeepSeekService.generateProductTitles({
+      const result = await DeepSeekService.generateProductTitles(
         productName,
         productPoints,
         targetAudience,
         platform,
-        tone,
-      });
+        tone
+      );
 
-      // 保存历史，确保用户存在
-      if (req.user && req.user.id) {
-        // await this.historyService.createHistory(
-        //   req.user.id,
-        //   JSON.stringify(body),
-        //   platform,
-        //   tone,
-        //   `生成商品标题，商品名称：${productName}`,
-        //   result
-        // );
+      // 可选：保存调用历史记录
+      if (req.user?.id) {
+        // await historyService.createHistory(...);
       }
 
       return { result };
     } catch (err: any) {
       this.setStatus(500);
-      return Promise.reject(new Error(err.message || "DeepSeek 服务调用失败"));
+      throw new Error(err.message || "生成商品标题失败");
     }
   }
 
