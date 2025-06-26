@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-
-type QueryOption<R> = Parameters<typeof useQuery<R>>['2'];
+import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 
 interface UseDebounceQueryProps<R, P> {
   key: string;
   params: P;
   debounce: number;
-  option: QueryOption<R>;
+  option?: UseQueryOptions<R, unknown, R, [string, P]>;
   request: (p: P) => Promise<R>;
 }
 
@@ -16,12 +14,16 @@ export const useDebounceQuery = <R = unknown, P = unknown>(props: UseDebounceQue
   const [newParams, setNewParams] = useState(params);
 
   useEffect(() => {
-    const stringify = obj => JSON.stringify(obj);
-    if (stringify(params) !== stringify(newParams)) {
-      const timerId = setTimeout(() => setNewParams(params), debounce);
-      return () => clearTimeout(timerId);
-    }
-  }, [params]);
+    const timerId = setTimeout(() => {
+      setNewParams(params);
+    }, debounce);
 
-  return useQuery<R>([key, newParams], () => request(newParams), option);
+    return () => clearTimeout(timerId);
+  }, [params, debounce]);
+
+  return useQuery<R, unknown, R, [string, P]>({
+    queryKey: [key, newParams],
+    queryFn: () => request(newParams),
+    ...option
+  });
 };

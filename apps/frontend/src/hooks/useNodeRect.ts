@@ -13,7 +13,7 @@ export default function useNodeRect(nodeId: string, deps?: any[]) {
           .select(`#${nodeId}`)
           .boundingClientRect((res) => {
             if (res) {
-              setRect(res);
+              setRect(res as any);
             }
           })
           .exec();

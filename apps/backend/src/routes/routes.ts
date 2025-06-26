@@ -9,6 +9,8 @@ import { UserController } from './../controllers/UserController';
 import { NoteController } from './../controllers/NoteController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { AuthController } from './../controllers/AuthController';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { AIController } from './../controllers/AIController';
 import type { Request as ExRequest, Response as ExResponse, RequestHandler, Router } from 'express';
 
 
@@ -561,6 +563,66 @@ export function RegisterRoutes(app: Router) {
                 next,
                 validatedArgs,
                 successStatus: 201,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsAIController_deepseek: Record<string, TsoaRoute.ParameterSchema> = {
+                body: {"in":"body","name":"body","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"prompt":{"dataType":"string","required":true}}},
+        };
+        app.post('/ai/deepseek',
+            ...(fetchMiddlewares<RequestHandler>(AIController)),
+            ...(fetchMiddlewares<RequestHandler>(AIController.prototype.deepseek)),
+
+            async function AIController_deepseek(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsAIController_deepseek, request, response });
+
+                const controller = new AIController();
+
+              await templateService.apiHandler({
+                methodName: 'deepseek',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: 200,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsAIController_chatgpt: Record<string, TsoaRoute.ParameterSchema> = {
+                body: {"in":"body","name":"body","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"prompt":{"dataType":"string","required":true}}},
+        };
+        app.post('/ai/chatgpt',
+            ...(fetchMiddlewares<RequestHandler>(AIController)),
+            ...(fetchMiddlewares<RequestHandler>(AIController.prototype.chatgpt)),
+
+            async function AIController_chatgpt(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsAIController_chatgpt, request, response });
+
+                const controller = new AIController();
+
+              await templateService.apiHandler({
+                methodName: 'chatgpt',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: 200,
               });
             } catch (err) {
                 return next(err);

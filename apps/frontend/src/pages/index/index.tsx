@@ -4,6 +4,7 @@ import Taro from '@tarojs/taro';
 import BottomTabBar from '@/src/components/BottomTabBar';
 import ApiService from '@/src/service';
 import { authStore } from '@/src/stores/auth';
+import { useAuthGuard } from '@/src/hooks';
 
 const HomePage: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
@@ -13,11 +14,16 @@ const HomePage: React.FC = () => {
     setInputValue(e.detail.value);
   };
 
+  useAuthGuard()
 
   useEffect(() => {
-     ApiService.get('/notes/user/' + authStore.getState().userId, {
+     ApiService.post('/ai/deepseek', {
       baseUrl: 'http://localhost:3000',
-   
+      data: {
+        prompt: '你好'
+      }
+    }).then(res => {
+      console.log(res)
     })
   }, [])
   const handleGenerate = () => {
