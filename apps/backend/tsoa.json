@@ -9,6 +9,7 @@
     "specFileBaseName": "swagger"
   },
   "routes": {
-    "routesDir": "src/routes"
+    "routesDir": "src/routes",
+    "authenticationModule": "src/utils/auth.ts"
   }
 }

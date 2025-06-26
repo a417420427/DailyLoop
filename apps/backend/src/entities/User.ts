@@ -14,6 +14,7 @@ import { ReviewTask } from "./ReviewTasks";
 import { AIConversation } from "./AIConversations";
 import { KnowledgeNode } from "./KnowledgeNodes";
 import { UserSetting } from "./UserSettings";
+import { CopyGenerationHistory } from "./CopyGenerationHistory";
 
 @Entity({ name: "users" })
 export class User {
@@ -23,8 +24,12 @@ export class User {
   @Column({ type: "varchar", length: 20, unique: true, nullable: true })
   phone?: string;
 
-
-  @Column({ name: "password_hash", type: "varchar", length: 255, nullable: true })
+  @Column({
+    name: "password_hash",
+    type: "varchar",
+    length: 255,
+    nullable: true,
+  })
   passwordHash?: string;
 
   @Column({ type: "varchar", length: 100, nullable: true })
@@ -69,4 +74,7 @@ export class User {
 
   @OneToOne(() => UserSetting, (setting) => setting.user)
   user_setting?: UserSetting;
+
+  @OneToMany(() => CopyGenerationHistory, (history) => history.user)
+  copy_generation_histories!: CopyGenerationHistory[];
 }
