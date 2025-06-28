@@ -3,9 +3,9 @@ import { authStore } from '@/src/stores/auth';
 
 import interceptors from './interceptors';
 
-const LOCAL_IP = `http://127.0.0.1`;
+const LOCAL_IP = `http://10.97.6.3`;
 
-const MOCK_PORT = { h5: '9527', weapp: '9528' }[process.env.TARO_ENV];
+const MOCK_PORT = { h5: '3000', weapp: '9528' }[process.env.TARO_ENV];
 
 const MOCK_BASE_URL = `${LOCAL_IP}:${MOCK_PORT}`;
 
@@ -53,7 +53,7 @@ export interface CustomResult<D = unknown> {
   data: D;
   statusCode: number;
   message: string;
-  [key: string]: any
+  [key: string]: any;
 }
 
 type OmitMethodCustomOption = Omit<Taro.request.Option<CustomResult, CustomData>, 'method'> & {
@@ -97,7 +97,7 @@ class ApiService {
 
     return Taro.request<CustomData>(option).then(res => {
       return res as any;
-    })
+    });
   }
 
   private static getMethod = (method: keyof Taro.request.Method) => {
@@ -107,6 +107,58 @@ class ApiService {
     };
     return apiMethod;
   };
+
+  static uploadFile<D>(
+    url: string,
+    filePath: string,
+    name = 'file',
+    options?: {
+      baseUrl?: string;
+      formData?: Record<string, any>;
+      extraConfig?: ExtraConfig;
+      headers?: Record<string, string>;
+    }
+  ): Promise<D> {
+    const { baseUrl = BASE_URL, formData = {}, extraConfig = {}, headers = {} } = options ?? {};
+
+    const uploadHeaders = {
+      Authorization: extraConfig.isHasToken ? 'Bearer ' + authStore.getState().token : '',
+      ...headers,
+    };
+
+    return new Promise((resolve, reject) => {
+      if (extraConfig?.showLoading) {
+        Taro.showLoading({ title: '上传中...' });
+      }
+
+      Taro.uploadFile({
+        url: baseUrl + url,
+        filePath,
+        name,
+        formData,
+        header: uploadHeaders,
+        success: res => {
+          try {
+            const data = JSON.parse(res.data);
+            resolve(data);
+          } catch (err) {
+            reject({ message: '上传成功但解析失败', error: err });
+          }
+        },
+        fail: err => {
+          if (extraConfig?.showErrorToast) {
+            Taro.showToast({ title: '上传失败', icon: 'error' });
+          }
+          reject(err);
+        },
+        complete: () => {
+          if (extraConfig?.showLoading) {
+            Taro.hideLoading();
+          }
+        },
+      });
+    });
+  }
 
   static get = this.getMethod('GET');
   static post = this.getMethod('POST');

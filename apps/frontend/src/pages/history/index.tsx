@@ -25,9 +25,7 @@ const HistoryPage: React.FC = () => {
 
   useLoad(() => {
     // 这里可以加载数据
-     ApiService.get<{statusCode: number, data: HistoryRecord[]}>('/copy-history', {
-       baseUrl: 'http://localhost:3000',
-     }).then(res => {
+     ApiService.get<{statusCode: number, data: HistoryRecord[]}>('/copy-history').then(res => {
        console.log(res, 'rrres')
        if (res.statusCode === 200) {
          setData(res.data);

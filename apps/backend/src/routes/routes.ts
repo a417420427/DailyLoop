@@ -8,6 +8,8 @@ import { UserController } from './../controllers/UserController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { NoteController } from './../controllers/NoteController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { ImageAnalysisController } from './../controllers/ImageAnalysisController';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { CopyGenerationHistoryController } from './../controllers/CopyGenerationHistoryController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { AuthController } from './../controllers/AuthController';
@@ -239,6 +241,136 @@ const models: TsoaRoute.Models = {
         "additionalProperties": true,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Coord": {
+        "dataType": "refObject",
+        "properties": {
+            "X": {"dataType":"double"},
+            "Y": {"dataType":"double"},
+        },
+        "additionalProperties": true,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ItemCoord": {
+        "dataType": "refObject",
+        "properties": {
+            "X": {"dataType":"double","required":true},
+            "Y": {"dataType":"double","required":true},
+            "Width": {"dataType":"double","required":true},
+            "Height": {"dataType":"double","required":true},
+        },
+        "additionalProperties": true,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "DetectedWords": {
+        "dataType": "refObject",
+        "properties": {
+            "Confidence": {"dataType":"double"},
+            "Character": {"dataType":"string"},
+        },
+        "additionalProperties": true,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "DetectedWordCoordPoint": {
+        "dataType": "refObject",
+        "properties": {
+            "WordCoordinate": {"dataType":"array","array":{"dataType":"refObject","ref":"Coord"},"required":true},
+        },
+        "additionalProperties": true,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "TextDetection": {
+        "dataType": "refObject",
+        "properties": {
+            "DetectedText": {"dataType":"string","required":true},
+            "Confidence": {"dataType":"double","required":true},
+            "Polygon": {"dataType":"array","array":{"dataType":"refObject","ref":"Coord"},"required":true},
+            "AdvancedInfo": {"dataType":"string","required":true},
+            "ItemPolygon": {"ref":"ItemCoord","required":true},
+            "Words": {"dataType":"array","array":{"dataType":"refObject","ref":"DetectedWords"},"required":true},
+            "WordCoordPoint": {"dataType":"array","array":{"dataType":"refObject","ref":"DetectedWordCoordPoint"},"required":true},
+        },
+        "additionalProperties": true,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "GeneralBasicOCRResponse": {
+        "dataType": "refObject",
+        "properties": {
+            "TextDetections": {"dataType":"array","array":{"dataType":"refObject","ref":"TextDetection"}},
+            "Language": {"dataType":"string"},
+            "Angel": {"dataType":"double"},
+            "PdfPageSize": {"dataType":"double"},
+            "Angle": {"dataType":"double"},
+            "RequestId": {"dataType":"string"},
+        },
+        "additionalProperties": true,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "TextTable": {
+        "dataType": "refObject",
+        "properties": {
+            "ColTl": {"dataType":"double","required":true},
+            "RowTl": {"dataType":"double","required":true},
+            "ColBr": {"dataType":"double","required":true},
+            "RowBr": {"dataType":"double","required":true},
+            "Text": {"dataType":"string","required":true},
+            "Type": {"dataType":"string","required":true},
+            "Confidence": {"dataType":"double","required":true},
+            "Polygon": {"dataType":"array","array":{"dataType":"refObject","ref":"Coord"},"required":true},
+            "AdvancedInfo": {"dataType":"string","required":true},
+        },
+        "additionalProperties": true,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "TableOCRResponse": {
+        "dataType": "refObject",
+        "properties": {
+            "TextDetections": {"dataType":"array","array":{"dataType":"refObject","ref":"TextTable"}},
+            "Data": {"dataType":"string"},
+            "RequestId": {"dataType":"string"},
+        },
+        "additionalProperties": true,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "QrcodePositionObj": {
+        "dataType": "refObject",
+        "properties": {
+            "LeftTop": {"ref":"Coord","required":true},
+            "RightTop": {"ref":"Coord","required":true},
+            "RightBottom": {"ref":"Coord","required":true},
+            "LeftBottom": {"ref":"Coord","required":true},
+        },
+        "additionalProperties": true,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "QrcodeResultsInfo": {
+        "dataType": "refObject",
+        "properties": {
+            "TypeName": {"dataType":"string"},
+            "Url": {"dataType":"string"},
+            "Position": {"ref":"QrcodePositionObj"},
+        },
+        "additionalProperties": true,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "QrcodeImgSize": {
+        "dataType": "refObject",
+        "properties": {
+            "Wide": {"dataType":"double","required":true},
+            "High": {"dataType":"double","required":true},
+        },
+        "additionalProperties": true,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "QrcodeOCRResponse": {
+        "dataType": "refObject",
+        "properties": {
+            "CodeResults": {"dataType":"array","array":{"dataType":"refObject","ref":"QrcodeResultsInfo"}},
+            "ImgSize": {"ref":"QrcodeImgSize"},
+            "RequestId": {"dataType":"string"},
+        },
+        "additionalProperties": true,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "GenerateCopyRequest": {
         "dataType": "refObject",
         "properties": {
@@ -285,6 +417,11 @@ const models: TsoaRoute.Models = {
             "keyPoints": {"dataType":"array","array":{"dataType":"string"},"required":true},
         },
         "additionalProperties": true,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "GenerateLifeCopyRequest": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"withTags":{"dataType":"boolean"},"withImage":{"dataType":"boolean"},"emotion":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["快乐"]},{"dataType":"enum","enums":["沮丧"]},{"dataType":"enum","enums":["惊喜"]},{"dataType":"enum","enums":["感恩"]},{"dataType":"enum","enums":["疲惫"]},{"dataType":"enum","enums":["平静"]}]},"tone":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["治愈系"]},{"dataType":"enum","enums":["搞笑"]},{"dataType":"enum","enums":["励志"]},{"dataType":"enum","enums":["文艺"]},{"dataType":"enum","enums":["生活流"]},{"dataType":"enum","enums":["种草口吻"]}],"required":true},"keywords":{"dataType":"string","required":true},"scene":{"dataType":"union","subSchemas":[{"dataType":"enum","enums":["朋友圈"]},{"dataType":"enum","enums":["日记"]},{"dataType":"enum","enums":["小红书"]},{"dataType":"enum","enums":["节日祝福"]},{"dataType":"enum","enums":["随手记录"]}],"required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
@@ -512,6 +649,96 @@ export function RegisterRoutes(app: Router) {
                 next,
                 validatedArgs,
                 successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsImageAnalysisController_recognizeText: Record<string, TsoaRoute.ParameterSchema> = {
+                body: {"in":"body","name":"body","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"imageBase64":{"dataType":"string","required":true}}},
+        };
+        app.post('/image-analysis/ocr',
+            ...(fetchMiddlewares<RequestHandler>(ImageAnalysisController)),
+            ...(fetchMiddlewares<RequestHandler>(ImageAnalysisController.prototype.recognizeText)),
+
+            async function ImageAnalysisController_recognizeText(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsImageAnalysisController_recognizeText, request, response });
+
+                const controller = new ImageAnalysisController();
+
+              await templateService.apiHandler({
+                methodName: 'recognizeText',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: 200,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsImageAnalysisController_extractDocument: Record<string, TsoaRoute.ParameterSchema> = {
+                body: {"in":"body","name":"body","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"imageBase64":{"dataType":"string","required":true}}},
+        };
+        app.post('/image-analysis/extract',
+            ...(fetchMiddlewares<RequestHandler>(ImageAnalysisController)),
+            ...(fetchMiddlewares<RequestHandler>(ImageAnalysisController.prototype.extractDocument)),
+
+            async function ImageAnalysisController_extractDocument(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsImageAnalysisController_extractDocument, request, response });
+
+                const controller = new ImageAnalysisController();
+
+              await templateService.apiHandler({
+                methodName: 'extractDocument',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: 200,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsImageAnalysisController_scanCode: Record<string, TsoaRoute.ParameterSchema> = {
+                body: {"in":"body","name":"body","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"imageBase64":{"dataType":"string","required":true}}},
+        };
+        app.post('/image-analysis/code',
+            ...(fetchMiddlewares<RequestHandler>(ImageAnalysisController)),
+            ...(fetchMiddlewares<RequestHandler>(ImageAnalysisController.prototype.scanCode)),
+
+            async function ImageAnalysisController_scanCode(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsImageAnalysisController_scanCode, request, response });
+
+                const controller = new ImageAnalysisController();
+
+              await templateService.apiHandler({
+                methodName: 'scanCode',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: 200,
               });
             } catch (err) {
                 return next(err);
@@ -845,6 +1072,37 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'embedHotWords',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: 200,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsAIController_generateLifeCopy: Record<string, TsoaRoute.ParameterSchema> = {
+                body: {"in":"body","name":"body","required":true,"ref":"GenerateLifeCopyRequest"},
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+        };
+        app.post('/ai/generate-life-copy',
+            ...(fetchMiddlewares<RequestHandler>(AIController)),
+            ...(fetchMiddlewares<RequestHandler>(AIController.prototype.generateLifeCopy)),
+
+            async function AIController_generateLifeCopy(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsAIController_generateLifeCopy, request, response });
+
+                const controller = new AIController();
+
+              await templateService.apiHandler({
+                methodName: 'generateLifeCopy',
                 controller,
                 response,
                 next,

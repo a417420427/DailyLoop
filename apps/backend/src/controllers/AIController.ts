@@ -13,6 +13,7 @@ import { buildAiPrompt } from "../utils/promptBuilder";
 import { User } from "../entities/User";
 import { AuthenticatedRequest } from "../types";
 import { CopyGenerationHistoryService } from "../services/CopyGenerationHistoryService";
+import { buildLifeCopyPrompt } from "../utils/buildLifeCopyPrompt";
 
 interface GenerateProductTitlesRequest {
   productName: string;
@@ -40,6 +41,16 @@ interface GenerateCopyRequest {
 interface ExtractKeyPointsRequest {
   description: string;
 }
+
+export type GenerateLifeCopyRequest = {
+  scene: "朋友圈" | "日记" | "小红书" | "节日祝福" | "随手记录";
+  keywords: string;
+  tone: "治愈系" | "搞笑" | "励志" | "文艺" | "生活流" | "种草口吻";
+  emotion?: "快乐" | "沮丧" | "惊喜" | "感恩" | "疲惫" | "平静";
+  withImage?: boolean;
+  withTags?: boolean;
+};
+
 
 @Route("ai")
 @Tags("AI")
@@ -213,6 +224,48 @@ export class AIController extends Controller {
     } catch (err: any) {
       this.setStatus(500);
       return Promise.reject(new Error(err.message || "DeepSeek 服务调用失败"));
+    }
+  }
+
+
+   /**
+   * 生成朋友圈/日记/小红书风格的生活文案
+   */
+  @SuccessResponse("200", "生成成功")
+  @Post("generate-life-copy")
+  public async generateLifeCopy(
+    @Body() body: GenerateLifeCopyRequest,
+    @Request() req: AuthenticatedRequest
+  ): Promise<{ result: string }> {
+    const { scene, keywords, tone, emotion, withImage, withTags } = body;
+
+    const aiPrompt = buildLifeCopyPrompt({
+      scene,
+      keywords,
+      tone,
+      emotion,
+      withImage,
+      withTags
+    });
+
+    try {
+      const result = await DeepSeekService.generateText(aiPrompt);
+
+      // if (req.user?.id) {
+      //   await this.historyService.createHistory(
+      //     req.user.id,
+      //     keywords,
+      //     tone,
+      //     100, // 固定长度，生活文案一般简短
+      //     aiPrompt,
+      //     result
+      //   );
+      // }
+
+      return { result };
+    } catch (err: any) {
+      this.setStatus(500);
+      return Promise.reject(new Error(err.message || "生成生活文案失败"));
     }
   }
 }

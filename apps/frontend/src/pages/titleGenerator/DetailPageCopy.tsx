@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { View, Textarea, Button, ScrollView, Text } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import ApiService from "@/src/service";

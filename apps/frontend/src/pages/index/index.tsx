@@ -1,135 +1,84 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Input, Text, View } from '@tarojs/components';
-import Taro from '@tarojs/taro';
-import ApiService from '@/src/service';
-import BottomTabBar from '@/src/components/BottomTabBar';
+import { useState } from "react";
+import { View, Button, Image, Text } from "@tarojs/components";
+import Taro from "@tarojs/taro";
+import ApiService from "@/src/service";
 
-import { useAuthGuard } from '@/src/hooks';
 
-const LENGTH_OPTIONS = [
-  { label: '简短', value: 'short' },
-  { label: '中等', value: 'medium' },
-  { label: '较长', value: 'long' },
-];
 
-const STYLE_OPTIONS = [
-  { label: '正式', value: 'formal' },
-  { label: '幽默', value: 'humorous' },
-  { label: '亲切', value: 'friendly' },
-  { label: '小红书', value: '小红书' },
-];
+const Index = () => {
+  const [imagePath, setImagePath] = useState<string>("");
+  const [result, setResult] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
-const HomePage: React.FC = () => {
-  const [inputValue, setInputValue] = useState('');
-  const [length, setLength] = useState('medium');
-  const [style, setStyle] = useState('formal');
-  const [result, setResult] = useState('');
-
-  const handleInput = e => {
-    setInputValue(e.detail.value);
-  };
-
-  useAuthGuard();
-  const handleGenerate = () => {
-    if (!inputValue.trim()) {
-      Taro.showToast({ title: '请输入关键词', icon: 'none' });
-      return;
-    }
-    ApiService.post<{
-      statusCode: number,
-      data: { result: string }
-    }>('/ai/deepseek', {
-      baseUrl: 'http://localhost:3000',
-      data: {
-        keywords: inputValue.split(/[ ,]+/),
-        style,
-        length,
+  const chooseImage = () => {
+    Taro.chooseImage({
+      count: 1,
+      success(res) {
+        const path = res.tempFilePaths[0];
+        setImagePath(path);
+        setResult([]);
       },
-    }).then(res => {
-      console.log(res)
-      setResult(res.data.result);
     });
   };
 
-  const handleCopy = () => {
-    Taro.setClipboardData({
-      data: result,
-      success: () => Taro.showToast({ title: '已复制', icon: 'success' }),
-    });
+  const uploadAndRecognize = async () => {
+    if (!imagePath) return;
+
+    setLoading(true);
+
+    try {
+      const data = await ApiService.uploadFile<{ result: { DetectedText: string }[] }>(
+        "/image-analysis/ocr",
+        imagePath,
+        "image", // 你后端 multer 的字段名
+        {
+          extraConfig: {
+            showLoading: true,
+            isHasToken: false, // 根据后端是否需要 token 决定
+          },
+        }
+      );
+
+      const textList = data.result?.map(item => item.DetectedText) || [];
+      setResult(textList);
+    } catch (err) {
+      console.error("上传失败", err);
+      Taro.showToast({ title: "识别失败", icon: "error" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <View className="min-h-screen bg-gray-50 p-4">
-      <View className="mb-6 text-center">
-        <Text className="text-3xl font-bold text-blue-600">AI 文案助手</Text>
-        <Text className="mt-1 block text-sm text-gray-500">让创作更简单高效</Text>
-      </View>
+    <View className="p-4 min-h-screen bg-gray-100">
+      <Button className="bg-blue-500 text-white rounded-xl p-3 mb-4" onClick={chooseImage}>
+        选择图片
+      </Button>
 
-      <View className="mb-4 rounded-xl bg-white p-4 shadow">
-        <Input
-          className="mb-3 w-full rounded border border-gray-300 p-3"
-          type="text"
-          placeholder="请输入关键词或提示语"
-          value={inputValue}
-          onInput={handleInput}
-        />
-
-        {/* 风格选择 */}
+      {imagePath && (
         <View className="mb-4">
-          <Text className="mb-2 block font-semibold text-gray-700">选择风格</Text>
-          <View className="flex flex-wrap gap-3">
-            {STYLE_OPTIONS.map(({ label, value }) => (
-              <View
-                key={value}
-                className={`cursor-pointer select-none rounded-full px-4 py-2
-                  ${style === value ? 'bg-blue-500 text-white' : 'border border-gray-300 text-gray-700'}`}
-                onClick={() => setStyle(value)}
-              >
-                {label}
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {/* 长度选择 */}
-        <View className="mb-4">
-          <Text className="mb-2 block font-semibold text-gray-700">选择文本长度</Text>
-          <View className="flex flex-wrap gap-3">
-            {LENGTH_OPTIONS.map(({ label, value }) => (
-              <View
-                key={value}
-                className={`cursor-pointer select-none rounded-full px-4 py-2
-                  ${length === value ? 'bg-blue-500 text-white' : 'border border-gray-300 text-gray-700'}`}
-                onClick={() => setLength(value)}
-              >
-                {label}
-              </View>
-            ))}
-          </View>
-        </View>
-
-        <Button className="w-full rounded-lg bg-blue-500 p-3 text-base text-white" onClick={handleGenerate}>
-          立即生成文案
-        </Button>
-      </View>
-
-      {result && (
-        <View className="mb-4 rounded-xl bg-white p-4 shadow">
-          <Text className="mb-2 block text-sm text-gray-600">生成结果：</Text>
-          <Text className="mb-3 block text-base leading-relaxed">{result}</Text>
-          <Button className="rounded border border-blue-500 p-2 text-sm text-blue-500" plain onClick={handleCopy}>
-            复制文案
-          </Button>
+          <Image src={imagePath} mode="widthFix" className="w-full rounded-xl shadow" />
         </View>
       )}
 
-      <Button className="mb-16 text-sm text-gray-500 underline" plain onClick={() => Taro.navigateTo({ url: '/pages/history/index' })}>
-        查看历史记录
-      </Button>
+      {imagePath && (
+        <Button className="bg-green-500 text-white rounded-xl p-3 mb-4" onClick={uploadAndRecognize} loading={loading}>
+          开始识别
+        </Button>
+      )}
 
-      <BottomTabBar />
+      {result.length > 0 && (
+        <View className="bg-white p-4 rounded-xl shadow">
+          <Text className="font-bold text-gray-700 mb-2 block">识别结果：</Text>
+          {result.map((line, index) => (
+            <Text key={index} className="block text-sm text-gray-800 mb-1">
+              {line}
+            </Text>
+          ))}
+        </View>
+      )}
     </View>
   );
 };
 
-export default HomePage;
+export default Index;

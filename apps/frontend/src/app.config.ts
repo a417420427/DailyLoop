@@ -7,6 +7,7 @@ export default defineAppConfig({
     'pages/register/index',
     'pages/titleGenerator/index',
     'pages/history/index',
+    'pages/lifeCopy/index',
     'pages/notes/index',
   ],
   window: {
