@@ -20,6 +20,9 @@ app.use(cors({
 AppDataSource.initialize()
   .then(() => {
     console.log("Data Source has been initialized!");
+    const apiRouter = express.Router();
+
+
     // 这里可以挂载自定义的中间件或者路由
     // 例如登录鉴权后访问的接口
     app.use("/notes", authMiddleware);
@@ -32,7 +35,10 @@ AppDataSource.initialize()
     // Swagger 文档接口（一般公开）
     app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
         // 注册 tsoa 自动生成的所有路由
-    RegisterRoutes(app);
+   RegisterRoutes(apiRouter);
+
+   app.use('/api', apiRouter);
+
     // 错误处理中间件一定要放在路由注册后面
     app.use(errorHandler);
 

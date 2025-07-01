@@ -3,8 +3,7 @@ import { DataSource } from "typeorm";
 import dotenv from "dotenv";
 
 const config = dotenv.config().parsed || {};
-console.log();
-// console.log(process.env, 'eee')
+
 export const AppDataSource = new DataSource({
   type: "mysql",
   host: config.DB_HOST || "localhost",

@@ -96,6 +96,7 @@ export class AIController extends Controller {
     @Body() body: GenerateProductTitlesRequest,
     @Request() req: any
   ): Promise<{ result: string[] }> {
+    console.log(body, 'bbbbb')
     const { productName, productPoints, targetAudience, platform, tone } = body;
 
     try {

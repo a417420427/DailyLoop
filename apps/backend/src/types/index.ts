@@ -4,5 +4,5 @@ import { User } from "../entities/User";
 
 
 export interface AuthenticatedRequest extends Request {
-  user?: User;
+  user?: User & { userId?: string };
 }

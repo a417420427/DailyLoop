@@ -6,6 +6,10 @@ import {  fetchMiddlewares, ExpressTemplateService } from '@tsoa/runtime';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { UserController } from './../controllers/UserController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { OcrHistoryController } from './../controllers/OcrHistoryController';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { OcrController } from './../controllers/OcrController';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { NoteController } from './../controllers/NoteController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { ImageAnalysisController } from './../controllers/ImageAnalysisController';
@@ -18,6 +22,8 @@ import { AIController } from './../controllers/AIController';
 import { expressAuthentication } from './../utils/auth';
 // @ts-ignore - no great way to install types from subpackage
 import type { Request as ExRequest, Response as ExResponse, RequestHandler, Router } from 'express';
+const multer = require('multer');
+
 
 const expressAuthenticationRecasted = expressAuthentication as (req: ExRequest, securityName: string, scopes?: string[], res?: ExResponse) => Promise<any>;
 
@@ -64,6 +70,7 @@ const models: TsoaRoute.Models = {
             "knowledge_nodes": {"dataType":"array","array":{"dataType":"refObject","ref":"KnowledgeNode"},"required":true},
             "user_setting": {"ref":"UserSetting"},
             "copy_generation_histories": {"dataType":"array","array":{"dataType":"refObject","ref":"CopyGenerationHistory"},"required":true},
+            "ocrRecords": {"dataType":"array","array":{"dataType":"refObject","ref":"OcrRecord"},"required":true},
         },
         "additionalProperties": true,
     },
@@ -213,9 +220,26 @@ const models: TsoaRoute.Models = {
         "additionalProperties": true,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "OcrRecord": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"string","required":true},
+            "user": {"ref":"User","required":true},
+            "user_id": {"dataType":"string","required":true},
+            "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["ocr"]},{"dataType":"enum","enums":["document"]},{"dataType":"enum","enums":["scan"]}],"required":true},
+            "image_url": {"dataType":"string"},
+            "result": {"dataType":"any","required":true},
+            "imageWidth": {"dataType":"double","required":true},
+            "imageHeight": {"dataType":"double","required":true},
+            "created_at": {"dataType":"datetime","required":true},
+            "updated_at": {"dataType":"datetime","required":true},
+        },
+        "additionalProperties": true,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Pick_User.Exclude_keyofUser.passwordHash__": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"id":{"dataType":"string","required":true},"phone":{"dataType":"string"},"username":{"dataType":"string"},"avatar_url":{"dataType":"string"},"wechat_openid":{"dataType":"string"},"created_at":{"dataType":"datetime","required":true},"updated_at":{"dataType":"datetime","required":true},"last_login_at":{"dataType":"datetime"},"is_active":{"dataType":"boolean","required":true},"notes":{"dataType":"array","array":{"dataType":"refObject","ref":"Note"},"required":true},"tags":{"dataType":"array","array":{"dataType":"refObject","ref":"Tag"},"required":true},"study_plans":{"dataType":"array","array":{"dataType":"refObject","ref":"StudyPlan"},"required":true},"review_tasks":{"dataType":"array","array":{"dataType":"refObject","ref":"ReviewTask"},"required":true},"ai_conversations":{"dataType":"array","array":{"dataType":"refObject","ref":"AIConversation"},"required":true},"knowledge_nodes":{"dataType":"array","array":{"dataType":"refObject","ref":"KnowledgeNode"},"required":true},"user_setting":{"ref":"UserSetting"},"copy_generation_histories":{"dataType":"array","array":{"dataType":"refObject","ref":"CopyGenerationHistory"},"required":true}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"id":{"dataType":"string","required":true},"phone":{"dataType":"string"},"username":{"dataType":"string"},"avatar_url":{"dataType":"string"},"wechat_openid":{"dataType":"string"},"created_at":{"dataType":"datetime","required":true},"updated_at":{"dataType":"datetime","required":true},"last_login_at":{"dataType":"datetime"},"is_active":{"dataType":"boolean","required":true},"notes":{"dataType":"array","array":{"dataType":"refObject","ref":"Note"},"required":true},"tags":{"dataType":"array","array":{"dataType":"refObject","ref":"Tag"},"required":true},"study_plans":{"dataType":"array","array":{"dataType":"refObject","ref":"StudyPlan"},"required":true},"review_tasks":{"dataType":"array","array":{"dataType":"refObject","ref":"ReviewTask"},"required":true},"ai_conversations":{"dataType":"array","array":{"dataType":"refObject","ref":"AIConversation"},"required":true},"knowledge_nodes":{"dataType":"array","array":{"dataType":"refObject","ref":"KnowledgeNode"},"required":true},"user_setting":{"ref":"UserSetting"},"copy_generation_histories":{"dataType":"array","array":{"dataType":"refObject","ref":"CopyGenerationHistory"},"required":true},"ocrRecords":{"dataType":"array","array":{"dataType":"refObject","ref":"OcrRecord"},"required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Omit_User.passwordHash_": {
@@ -432,13 +456,14 @@ const templateService = new ExpressTemplateService(models, {"noImplicitAdditiona
 
 
 
-export function RegisterRoutes(app: Router) {
+export function RegisterRoutes(app: Router,opts?:{multer?:ReturnType<typeof multer>}) {
 
     // ###########################################################################################################
     //  NOTE: If you do not see routes for all of your controllers in this file, then you might not have informed tsoa of where to look
     //      Please look into the "controllerPathGlobs" config option described in the readme: https://github.com/lukeautry/tsoa
     // ###########################################################################################################
 
+    const upload = opts?.multer ||  multer({"limits":{"fileSize":8388608}});
 
     
         const argsUserController_getUserById: Record<string, TsoaRoute.ParameterSchema> = {
@@ -495,6 +520,153 @@ export function RegisterRoutes(app: Router) {
                 next,
                 validatedArgs,
                 successStatus: 201,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsOcrHistoryController_getAggregatedHistory: Record<string, TsoaRoute.ParameterSchema> = {
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+                page: {"in":"query","name":"page","dataType":"double"},
+                pageSize: {"in":"query","name":"pageSize","dataType":"double"},
+        };
+        app.get('/ocr_history',
+            authenticateMiddleware([{"jwt":[]}]),
+            ...(fetchMiddlewares<RequestHandler>(OcrHistoryController)),
+            ...(fetchMiddlewares<RequestHandler>(OcrHistoryController.prototype.getAggregatedHistory)),
+
+            async function OcrHistoryController_getAggregatedHistory(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsOcrHistoryController_getAggregatedHistory, request, response });
+
+                const controller = new OcrHistoryController();
+
+              await templateService.apiHandler({
+                methodName: 'getAggregatedHistory',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsOcrController_recognizeText: Record<string, TsoaRoute.ParameterSchema> = {
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+                file: {"in":"formData","name":"file","required":true,"dataType":"file"},
+        };
+        app.post('/ocr/recognize-text',
+            authenticateMiddleware([{"jwt":[]}]),
+            upload.fields([
+                {
+                    name: "file",
+                    maxCount: 1
+                }
+            ]),
+            ...(fetchMiddlewares<RequestHandler>(OcrController)),
+            ...(fetchMiddlewares<RequestHandler>(OcrController.prototype.recognizeText)),
+
+            async function OcrController_recognizeText(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsOcrController_recognizeText, request, response });
+
+                const controller = new OcrController();
+
+              await templateService.apiHandler({
+                methodName: 'recognizeText',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: 200,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsOcrController_scanCode: Record<string, TsoaRoute.ParameterSchema> = {
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+                file: {"in":"formData","name":"file","required":true,"dataType":"file"},
+        };
+        app.post('/ocr/scan-code',
+            authenticateMiddleware([{"jwt":[]}]),
+            upload.fields([
+                {
+                    name: "file",
+                    maxCount: 1
+                }
+            ]),
+            ...(fetchMiddlewares<RequestHandler>(OcrController)),
+            ...(fetchMiddlewares<RequestHandler>(OcrController.prototype.scanCode)),
+
+            async function OcrController_scanCode(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsOcrController_scanCode, request, response });
+
+                const controller = new OcrController();
+
+              await templateService.apiHandler({
+                methodName: 'scanCode',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsOcrController_extractDocument: Record<string, TsoaRoute.ParameterSchema> = {
+                req: {"in":"request","name":"req","required":true,"dataType":"object"},
+                file: {"in":"formData","name":"file","required":true,"dataType":"file"},
+        };
+        app.post('/ocr/extract-document',
+            authenticateMiddleware([{"jwt":[]}]),
+            upload.fields([
+                {
+                    name: "file",
+                    maxCount: 1
+                }
+            ]),
+            ...(fetchMiddlewares<RequestHandler>(OcrController)),
+            ...(fetchMiddlewares<RequestHandler>(OcrController.prototype.extractDocument)),
+
+            async function OcrController_extractDocument(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsOcrController_extractDocument, request, response });
+
+                const controller = new OcrController();
+
+              await templateService.apiHandler({
+                methodName: 'extractDocument',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
               });
             } catch (err) {
                 return next(err);

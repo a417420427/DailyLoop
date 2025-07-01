@@ -9,6 +9,9 @@ export default defineAppConfig({
     'pages/history/index',
     'pages/lifeCopy/index',
     'pages/notes/index',
+    'pages/ocr/index',
+    'pages/ocrRecognizeTextPage/index',
+    
   ],
   window: {
     backgroundTextStyle: 'light',

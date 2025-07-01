@@ -15,6 +15,7 @@ import { AIConversation } from "./AIConversations";
 import { KnowledgeNode } from "./KnowledgeNodes";
 import { UserSetting } from "./UserSettings";
 import { CopyGenerationHistory } from "./CopyGenerationHistory";
+import { OcrRecord } from "./OcrRecords";
 
 @Entity({ name: "users" })
 export class User {
@@ -77,4 +78,10 @@ export class User {
 
   @OneToMany(() => CopyGenerationHistory, (history) => history.user)
   copy_generation_histories!: CopyGenerationHistory[];
+
+
+  
+  // 双向绑定 OCR 记录
+  @OneToMany(() => OcrRecord, (record) => record.user)
+  ocrRecords!: OcrRecord[];
 }

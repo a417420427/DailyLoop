@@ -22,7 +22,7 @@ const LoginPage = () => {
       statusCode: number
       data: { token: string; userId: string; username: string }
     }>('/auth/login-by-password', {
-      baseUrl: 'http://localhost:3000',
+    
       data: {
         username: phone,
         password: password,

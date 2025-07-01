@@ -3,11 +3,11 @@ import { authStore } from '@/src/stores/auth';
 
 import interceptors from './interceptors';
 
-const LOCAL_IP = `http://10.97.6.3`;
+const LOCAL_IP = ``;
 
 const MOCK_PORT = { h5: '3000', weapp: '9528' }[process.env.TARO_ENV];
 
-const MOCK_BASE_URL = `${LOCAL_IP}:${MOCK_PORT}`;
+const MOCK_BASE_URL = `/api`;
 
 const getBaseUrl = () => {
   if (process.env.TARO_ENV === 'weapp') {
@@ -119,7 +119,12 @@ class ApiService {
       headers?: Record<string, string>;
     }
   ): Promise<D> {
-    const { baseUrl = BASE_URL, formData = {}, extraConfig = {}, headers = {} } = options ?? {};
+    const { baseUrl = BASE_URL, formData = {}, extraConfig = {
+      isHasToken: true
+    }, headers = {} } = options ?? {};
+
+    const isAbsoluteUrl = /^https?:\/\//i.test(url);
+    const fullUrl = isAbsoluteUrl ? url : baseUrl + url;
 
     const uploadHeaders = {
       Authorization: extraConfig.isHasToken ? 'Bearer ' + authStore.getState().token : '',
@@ -130,6 +135,8 @@ class ApiService {
       if (extraConfig?.showLoading) {
         Taro.showLoading({ title: '上传中...' });
       }
+
+      console.log('上传地址:', uploadHeaders, fullUrl);
 
       Taro.uploadFile({
         url: baseUrl + url,
@@ -142,14 +149,22 @@ class ApiService {
             const data = JSON.parse(res.data);
             resolve(data);
           } catch (err) {
-            reject({ message: '上传成功但解析失败', error: err });
+            console.error('JSON parse error:', err);
+            reject({
+              message: '上传成功但返回数据不是有效 JSON',
+              rawResponse: res.data,
+              error: err,
+            });
           }
         },
         fail: err => {
           if (extraConfig?.showErrorToast) {
             Taro.showToast({ title: '上传失败', icon: 'error' });
           }
-          reject(err);
+          reject({
+            message: '文件上传失败',
+            error: err,
+          });
         },
         complete: () => {
           if (extraConfig?.showLoading) {
